@@ -84,13 +84,12 @@
     background: #FFE000;
     border-radius: 50%;
     position: relative;
-    animation: chomp 0.3s steps(2) infinite;
-    clip-path: polygon(100% 50%, 75% 15%, 0% 0%, 0% 100%, 75% 85%);
+    animation: chomp 0.35s ease-in-out infinite alternate;
   }
 
   @keyframes chomp {
-    0%   { clip-path: polygon(100% 50%, 60% 5%, 0% 0%, 0% 100%, 60% 95%); }
-    50%  { clip-path: polygon(100% 50%, 100% 40%, 0% 0%, 0% 100%, 100% 60%); }
+    0%   { clip-path: polygon(100% 50%, 100% 0%, 0% 0%, 0% 100%, 100% 100%); }
+    100% { clip-path: polygon(100% 50%, 65% 10%, 0% 0%, 0% 100%, 65% 90%); }
   }
 
   /* Ghosts */
@@ -697,24 +696,23 @@
   }
 
   let pacProgress = 0;
-  const ghostOffsets = [0.06, 0.12, 0.18]; // spacing behind pac-man
+  const ghostOffsets = [0.18, 0.12, 0.06]; // ghosts AHEAD of pac-man
   const speed = 0.0008;
 
   function animatePacman() {
-    const rect = border.getBoundingClientRect();
     const localRect = { width: border.offsetWidth, height: border.offsetHeight };
 
     pacProgress = (pacProgress + speed) % 1;
 
-    // Pac-Man position
+    // Pac-Man position (chasing behind)
     const pacPos = getPerimeterPoint(pacProgress, localRect);
     pacman.style.left = pacPos.x + 'px';
     pacman.style.top = pacPos.y + 'px';
     pacman.querySelector('.pacman-body').style.transform = `rotate(${pacPos.rot}deg)`;
 
-    // Ghosts follow behind
+    // Ghosts run AHEAD of Pac-Man
     ghosts.forEach((ghost, i) => {
-      let gProgress = (pacProgress - ghostOffsets[i] + 1) % 1;
+      let gProgress = (pacProgress + ghostOffsets[i]) % 1;
       const gPos = getPerimeterPoint(gProgress, localRect);
       ghost.style.left = gPos.x + 'px';
       ghost.style.top = gPos.y + 'px';
@@ -736,7 +734,66 @@
   }
 
   animatePacman();
+
+  // === PAC-MAN AUDIO ===
+  const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+  let audioPlaying = false;
+  let audioInterval = null;
+
+  function playPacSound() {
+    const osc = audioCtx.createOscillator();
+    const gain = audioCtx.createGain();
+    osc.connect(gain);
+    gain.connect(audioCtx.destination);
+    osc.type = 'square';
+    const now = audioCtx.currentTime;
+    // Classic waka-waka
+    osc.frequency.setValueAtTime(400, now);
+    osc.frequency.linearRampToValueAtTime(200, now + 0.08);
+    osc.frequency.linearRampToValueAtTime(300, now + 0.12);
+    gain.gain.setValueAtTime(0.08, now);
+    gain.gain.linearRampToValueAtTime(0, now + 0.15);
+    osc.start(now);
+    osc.stop(now + 0.15);
+  }
+
+  function toggleAudio() {
+    const btn = document.getElementById('audio-btn');
+    if (audioPlaying) {
+      clearInterval(audioInterval);
+      audioInterval = null;
+      audioPlaying = false;
+      btn.textContent = '🔇';
+      btn.title = 'Activar sonido Pac-Man';
+    } else {
+      audioCtx.resume();
+      audioInterval = setInterval(playPacSound, 300);
+      audioPlaying = true;
+      btn.textContent = '🔊';
+      btn.title = 'Silenciar Pac-Man';
+    }
+  }
 </script>
+
+<!-- Audio toggle button -->
+<button id="audio-btn" onclick="toggleAudio()" title="Activar sonido Pac-Man" style="
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  border: 2px solid rgba(242,165,22,0.3);
+  background: rgba(26,26,46,0.85);
+  backdrop-filter: blur(10px);
+  font-size: 1.4rem;
+  cursor: pointer;
+  z-index: 100;
+  transition: all 0.3s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+" onmouseover="this.style.borderColor='rgba(242,165,22,0.8)';this.style.transform='scale(1.1)'" onmouseout="this.style.borderColor='rgba(242,165,22,0.3)';this.style.transform='scale(1)'">🔇</button>
 
 </body>
 </html>
