@@ -59,6 +59,12 @@
     border: 2px solid rgba(242,165,22,0.2);
     border-radius: 30px;
     pointer-events: none;
+    animation: borderGlow 3s ease-in-out infinite;
+  }
+
+  @keyframes borderGlow {
+    0%, 100% { border-color: rgba(242,165,22,0.1); box-shadow: inset 0 0 20px rgba(242,165,22,0), 0 0 20px rgba(242,165,22,0); }
+    50% { border-color: rgba(242,165,22,0.45); box-shadow: inset 0 0 30px rgba(242,165,22,0.05), 0 0 25px rgba(242,165,22,0.1); }
   }
 
   .sparkle-border::before,
@@ -515,6 +521,45 @@
     requestAnimationFrame(animateConfetti);
   }
   animateConfetti();
+
+  // === MAGIC WAND CURSOR SPARKLES ===
+  const sparkleChars = ['✦', '✧', '⭑', '✶', '✷', '·'];
+  const sparkleColors = ['#FFD166', '#F2A516', '#FF6B8A', '#FFF8F0', '#E8375A', '#FFB347'];
+  let lastSparkle = 0;
+
+  document.addEventListener('mousemove', (e) => {
+    const now = Date.now();
+    if (now - lastSparkle < 40) return;
+    lastSparkle = now;
+
+    for (let i = 0; i < 3; i++) {
+      const spark = document.createElement('div');
+      spark.textContent = sparkleChars[Math.floor(Math.random() * sparkleChars.length)];
+      spark.style.cssText = `
+        position: fixed;
+        left: ${e.clientX + (Math.random() * 20 - 10)}px;
+        top: ${e.clientY + (Math.random() * 20 - 10)}px;
+        pointer-events: none;
+        z-index: 9999;
+        font-size: ${6 + Math.random() * 12}px;
+        color: ${sparkleColors[Math.floor(Math.random() * sparkleColors.length)]};
+        text-shadow: 0 0 6px currentColor;
+        animation: cursorSparkle ${0.5 + Math.random() * 0.6}s ease-out forwards;
+      `;
+      document.body.appendChild(spark);
+      setTimeout(() => spark.remove(), 1200);
+    }
+  });
+
+  // Add sparkle keyframes
+  const style = document.createElement('style');
+  style.textContent = `
+    @keyframes cursorSparkle {
+      0% { opacity: 1; transform: translate(0, 0) scale(1) rotate(0deg); }
+      100% { opacity: 0; transform: translate(${Math.random() > 0.5 ? '' : '-'}${10 + Math.random() * 20}px, ${20 + Math.random() * 30}px) scale(0) rotate(${Math.random() * 180}deg); }
+    }
+  `;
+  document.head.appendChild(style);
 </script>
 
 </body>
