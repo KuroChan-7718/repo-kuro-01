@@ -522,12 +522,12 @@
   }
   animateConfetti();
 
-  // === MAGIC WAND CURSOR SPARKLES ===
+  // === MAGIC WAND SPARKLES (mouse + touch) ===
   const sparkleChars = ['✦', '✧', '⭑', '✶', '✷', '·'];
   const sparkleColors = ['#FFD166', '#F2A516', '#FF6B8A', '#FFF8F0', '#E8375A', '#FFB347'];
   let lastSparkle = 0;
 
-  document.addEventListener('mousemove', (e) => {
+  function createSparkles(x, y) {
     const now = Date.now();
     if (now - lastSparkle < 40) return;
     lastSparkle = now;
@@ -535,28 +535,59 @@
     for (let i = 0; i < 3; i++) {
       const spark = document.createElement('div');
       spark.textContent = sparkleChars[Math.floor(Math.random() * sparkleChars.length)];
+      const offsetX = (Math.random() * 30 - 15);
+      const offsetY = (Math.random() * 30 - 15);
+      const fallX = (Math.random() > 0.5 ? 1 : -1) * (10 + Math.random() * 20);
+      const fallY = 20 + Math.random() * 30;
+      const rot = Math.random() * 180;
       spark.style.cssText = `
         position: fixed;
-        left: ${e.clientX + (Math.random() * 20 - 10)}px;
-        top: ${e.clientY + (Math.random() * 20 - 10)}px;
+        left: ${x + offsetX}px;
+        top: ${y + offsetY}px;
         pointer-events: none;
         z-index: 9999;
         font-size: ${6 + Math.random() * 12}px;
         color: ${sparkleColors[Math.floor(Math.random() * sparkleColors.length)]};
         text-shadow: 0 0 6px currentColor;
+        --fall-x: ${fallX}px;
+        --fall-y: ${fallY}px;
+        --rot: ${rot}deg;
         animation: cursorSparkle ${0.5 + Math.random() * 0.6}s ease-out forwards;
       `;
       document.body.appendChild(spark);
       setTimeout(() => spark.remove(), 1200);
     }
+  }
+
+  // Mouse (desktop)
+  document.addEventListener('mousemove', (e) => {
+    createSparkles(e.clientX, e.clientY);
   });
 
-  // Add sparkle keyframes
+  // Touch (mobile) - sparkles follow finger
+  document.addEventListener('touchmove', (e) => {
+    const touch = e.touches[0];
+    createSparkles(touch.clientX, touch.clientY);
+  }, { passive: true });
+
+  // Touch tap - burst of sparkles
+  document.addEventListener('touchstart', (e) => {
+    const touch = e.touches[0];
+    lastSparkle = 0; // force sparkle
+    for (let j = 0; j < 3; j++) {
+      setTimeout(() => {
+        lastSparkle = 0;
+        createSparkles(touch.clientX, touch.clientY);
+      }, j * 50);
+    }
+  }, { passive: true });
+
+  // Sparkle keyframes
   const style = document.createElement('style');
   style.textContent = `
     @keyframes cursorSparkle {
       0% { opacity: 1; transform: translate(0, 0) scale(1) rotate(0deg); }
-      100% { opacity: 0; transform: translate(${Math.random() > 0.5 ? '' : '-'}${10 + Math.random() * 20}px, ${20 + Math.random() * 30}px) scale(0) rotate(${Math.random() * 180}deg); }
+      100% { opacity: 0; transform: translate(var(--fall-x), var(--fall-y)) scale(0) rotate(var(--rot)); }
     }
   `;
   document.head.appendChild(style);
