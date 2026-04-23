@@ -56,31 +56,86 @@
   .sparkle-border {
     position: absolute;
     top: 20px; left: 20px; right: 20px; bottom: 20px;
-    border: 2px solid rgba(242,165,22,0.2);
+    border: 2px solid rgba(242,165,22,0.3);
     border-radius: 30px;
     pointer-events: none;
-    animation: borderGlow 3s ease-in-out infinite;
+    animation: borderGlow 4s ease-in-out infinite;
+    overflow: visible;
   }
 
   @keyframes borderGlow {
-    0%, 100% { border-color: rgba(242,165,22,0.1); box-shadow: inset 0 0 20px rgba(242,165,22,0), 0 0 20px rgba(242,165,22,0); }
-    50% { border-color: rgba(242,165,22,0.45); box-shadow: inset 0 0 30px rgba(242,165,22,0.05), 0 0 25px rgba(242,165,22,0.1); }
+    0%, 100% { border-color: rgba(242,165,22,0.15); box-shadow: inset 0 0 30px rgba(242,165,22,0.02), 0 0 15px rgba(242,165,22,0.05); }
+    50% { border-color: rgba(242,165,22,0.6); box-shadow: inset 0 0 40px rgba(242,165,22,0.08), 0 0 40px rgba(242,165,22,0.2), 0 0 80px rgba(242,165,22,0.08); }
   }
 
-  .sparkle-border::before,
-  .sparkle-border::after {
-    content: '✦';
+  /* Pac-Man character */
+  .pacman {
+    position: absolute;
+    width: 22px;
+    height: 22px;
+    z-index: 10;
+    pointer-events: none;
+    filter: drop-shadow(0 0 6px rgba(255,255,0,0.7));
+  }
+
+  .pacman-body {
+    width: 22px;
+    height: 22px;
+    background: #FFE000;
+    border-radius: 50%;
+    position: relative;
+    animation: chomp 0.3s steps(2) infinite;
+    clip-path: polygon(100% 50%, 75% 15%, 0% 0%, 0% 100%, 75% 85%);
+  }
+
+  @keyframes chomp {
+    0%   { clip-path: polygon(100% 50%, 60% 5%, 0% 0%, 0% 100%, 60% 95%); }
+    50%  { clip-path: polygon(100% 50%, 100% 40%, 0% 0%, 0% 100%, 100% 60%); }
+  }
+
+  /* Ghosts */
+  .ghost {
+    position: absolute;
+    font-size: 20px;
+    z-index: 10;
+    pointer-events: none;
+    animation: ghostWobble 0.5s ease-in-out infinite alternate;
+  }
+
+  @keyframes ghostWobble {
+    0%   { transform: translateY(-1px); }
+    100% { transform: translateY(1px); }
+  }
+
+  .ghost-red    { filter: drop-shadow(0 0 6px rgba(255,0,0,0.5)); }
+  .ghost-pink   { filter: drop-shadow(0 0 6px rgba(255,184,255,0.5)); }
+  .ghost-cyan   { filter: drop-shadow(0 0 6px rgba(0,255,255,0.5)); }
+  .ghost-orange { filter: drop-shadow(0 0 6px rgba(255,184,82,0.5)); }
+
+  /* Pac-dots along the border */
+  .pac-dot {
+    position: absolute;
+    width: 4px;
+    height: 4px;
+    background: #FFD166;
+    border-radius: 50%;
+    opacity: 0.5;
+    box-shadow: 0 0 4px rgba(255,209,102,0.4);
+    pointer-events: none;
+  }
+
+  /* Extra sparkle stars on corners */
+  .border-star {
     position: absolute;
     color: var(--gold);
-    font-size: 1.2rem;
+    font-size: 1rem;
     animation: sparkle 2s ease-in-out infinite;
+    pointer-events: none;
   }
-  .sparkle-border::before { top: -10px; left: 50%; }
-  .sparkle-border::after { bottom: -10px; right: 30%; animation-delay: 1s; }
 
   @keyframes sparkle {
-    0%, 100% { opacity: 0.3; transform: scale(0.8); }
-    50% { opacity: 1; transform: scale(1.3); }
+    0%, 100% { opacity: 0.2; transform: scale(0.7); text-shadow: 0 0 4px rgba(242,165,22,0.2); }
+    50% { opacity: 1; transform: scale(1.4); text-shadow: 0 0 12px rgba(242,165,22,0.8); }
   }
 
   .invite-tag {
@@ -344,7 +399,24 @@
 <canvas id="confetti-canvas"></canvas>
 
 <section class="hero">
-  <div class="sparkle-border"></div>
+  <div class="sparkle-border">
+    <div class="pacman" id="pacman"><div class="pacman-body"></div></div>
+    <div class="ghost ghost-red" id="ghost1">👻</div>
+    <div class="ghost ghost-cyan" id="ghost2">👻</div>
+    <div class="ghost ghost-pink" id="ghost3">👻</div>
+    <span class="border-star" style="top:-8px;left:20%;">✦</span>
+    <span class="border-star" style="top:-8px;left:50%;animation-delay:0.5s;">✧</span>
+    <span class="border-star" style="top:-8px;left:80%;animation-delay:1.2s;">✦</span>
+    <span class="border-star" style="bottom:-8px;left:15%;animation-delay:0.8s;">✶</span>
+    <span class="border-star" style="bottom:-8px;left:50%;animation-delay:1.5s;">✦</span>
+    <span class="border-star" style="bottom:-8px;left:85%;animation-delay:0.3s;">✧</span>
+    <span class="border-star" style="top:20%;left:-8px;animation-delay:1s;">✦</span>
+    <span class="border-star" style="top:50%;left:-8px;animation-delay:1.8s;">✶</span>
+    <span class="border-star" style="top:80%;left:-8px;animation-delay:0.6s;">✧</span>
+    <span class="border-star" style="top:20%;right:-8px;animation-delay:1.3s;">✧</span>
+    <span class="border-star" style="top:50%;right:-8px;animation-delay:0.4s;">✦</span>
+    <span class="border-star" style="top:80%;right:-8px;animation-delay:1.7s;">✶</span>
+  </div>
 
   <div class="invite-tag">✨ Estás invitado ✨</div>
 
@@ -523,39 +595,40 @@
   animateConfetti();
 
   // === MAGIC WAND SPARKLES (mouse + touch) ===
-  const sparkleChars = ['✦', '✧', '⭑', '✶', '✷', '·'];
-  const sparkleColors = ['#FFD166', '#F2A516', '#FF6B8A', '#FFF8F0', '#E8375A', '#FFB347'];
+  const sparkleChars = ['✦', '✧', '⭑', '✶', '✷', '·', '★', '☆'];
+  const sparkleColors = ['#FFD166', '#F2A516', '#FF6B8A', '#FFF8F0', '#E8375A', '#FFB347', '#fff'];
   let lastSparkle = 0;
 
   function createSparkles(x, y) {
     const now = Date.now();
-    if (now - lastSparkle < 40) return;
+    if (now - lastSparkle < 30) return;
     lastSparkle = now;
 
-    for (let i = 0; i < 3; i++) {
+    for (let i = 0; i < 6; i++) {
       const spark = document.createElement('div');
       spark.textContent = sparkleChars[Math.floor(Math.random() * sparkleChars.length)];
-      const offsetX = (Math.random() * 30 - 15);
-      const offsetY = (Math.random() * 30 - 15);
-      const fallX = (Math.random() > 0.5 ? 1 : -1) * (10 + Math.random() * 20);
-      const fallY = 20 + Math.random() * 30;
-      const rot = Math.random() * 180;
+      const offsetX = (Math.random() * 40 - 20);
+      const offsetY = (Math.random() * 40 - 20);
+      const fallX = (Math.random() > 0.5 ? 1 : -1) * (15 + Math.random() * 35);
+      const fallY = 30 + Math.random() * 50;
+      const rot = Math.random() * 360;
+      const duration = 2.5 + Math.random() * 1;
       spark.style.cssText = `
         position: fixed;
         left: ${x + offsetX}px;
         top: ${y + offsetY}px;
         pointer-events: none;
         z-index: 9999;
-        font-size: ${6 + Math.random() * 12}px;
+        font-size: ${8 + Math.random() * 14}px;
         color: ${sparkleColors[Math.floor(Math.random() * sparkleColors.length)]};
-        text-shadow: 0 0 6px currentColor;
+        text-shadow: 0 0 8px currentColor, 0 0 16px currentColor;
         --fall-x: ${fallX}px;
         --fall-y: ${fallY}px;
         --rot: ${rot}deg;
-        animation: cursorSparkle ${0.5 + Math.random() * 0.6}s ease-out forwards;
+        animation: cursorSparkle ${duration}s ease-out forwards;
       `;
       document.body.appendChild(spark);
-      setTimeout(() => spark.remove(), 1200);
+      setTimeout(() => spark.remove(), 3500);
     }
   }
 
@@ -591,6 +664,78 @@
     }
   `;
   document.head.appendChild(style);
+
+  // === PAC-MAN BORDER ANIMATION ===
+  const border = document.querySelector('.sparkle-border');
+  const pacman = document.getElementById('pacman');
+  const ghosts = [
+    document.getElementById('ghost1'),
+    document.getElementById('ghost2'),
+    document.getElementById('ghost3')
+  ];
+
+  function getPerimeterPoint(progress, rect) {
+    // progress: 0 to 1, travels clockwise around the border
+    const w = rect.width;
+    const h = rect.height;
+    const perimeter = 2 * (w + h);
+    const dist = progress * perimeter;
+
+    if (dist <= w) {
+      // Top edge: left to right
+      return { x: dist, y: -12, rot: 0 };
+    } else if (dist <= w + h) {
+      // Right edge: top to bottom
+      return { x: w + 4, y: dist - w, rot: 90 };
+    } else if (dist <= 2 * w + h) {
+      // Bottom edge: right to left
+      return { x: w - (dist - w - h), y: h + 4, rot: 180 };
+    } else {
+      // Left edge: bottom to top
+      return { x: -14, y: h - (dist - 2 * w - h), rot: 270 };
+    }
+  }
+
+  let pacProgress = 0;
+  const ghostOffsets = [0.06, 0.12, 0.18]; // spacing behind pac-man
+  const speed = 0.0008;
+
+  function animatePacman() {
+    const rect = border.getBoundingClientRect();
+    const localRect = { width: border.offsetWidth, height: border.offsetHeight };
+
+    pacProgress = (pacProgress + speed) % 1;
+
+    // Pac-Man position
+    const pacPos = getPerimeterPoint(pacProgress, localRect);
+    pacman.style.left = pacPos.x + 'px';
+    pacman.style.top = pacPos.y + 'px';
+    pacman.querySelector('.pacman-body').style.transform = `rotate(${pacPos.rot}deg)`;
+
+    // Ghosts follow behind
+    ghosts.forEach((ghost, i) => {
+      let gProgress = (pacProgress - ghostOffsets[i] + 1) % 1;
+      const gPos = getPerimeterPoint(gProgress, localRect);
+      ghost.style.left = gPos.x + 'px';
+      ghost.style.top = gPos.y + 'px';
+    });
+
+    requestAnimationFrame(animatePacman);
+  }
+
+  // Add pac-dots along the border
+  const dotCount = 40;
+  for (let i = 0; i < dotCount; i++) {
+    const dot = document.createElement('div');
+    dot.classList.add('pac-dot');
+    const localRect = { width: border.offsetWidth, height: border.offsetHeight };
+    const pos = getPerimeterPoint(i / dotCount, localRect);
+    dot.style.left = (pos.x + 8) + 'px';
+    dot.style.top = (pos.y + 8) + 'px';
+    border.appendChild(dot);
+  }
+
+  animatePacman();
 </script>
 
 </body>
